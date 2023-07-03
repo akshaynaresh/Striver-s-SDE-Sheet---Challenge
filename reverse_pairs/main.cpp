@@ -86,64 +86,43 @@ void merge(vector<int>&a, int low, int mid, int high)
         a[i] = res[i-low];
 }
 
-void merge_sort(vector<int>&a, int low, int high)
+int countPairs(vector<int>&a, int low, int mid, int high)
 {
+    int cnt = 0, right = mid+1;
+    for(int i = low; i <= mid; i++)
+    {
+        while(right <= high && a[i] > 2*a[right])
+        {
+            right++;
+        }
+        cnt += (right - (mid+1));
+    }
+    return cnt;
+}
+
+
+int merge_sort(vector<int>&a, int low, int high)
+{
+    int cnt = 0;
     if(low < high)
     {
         int mid = (low+high)/2;
-        merge_sort(a, low, mid);
-        merge_sort(a, mid+1, high);
+        cnt += merge_sort(a, low, mid);
+        cnt += merge_sort(a, mid+1, high);
+        cnt += countPairs(a, low, mid, high);
         merge(a, low, mid, high);
     }
+    return cnt;
 }
 
 void messi()
 {
-    int n, t;
-    cin >> n >> t;
+    int n;
+    cin >> n;
     vector<int>a(n);
     for(int i = 0; i < n; i++)
         cin >> a[i];
-    vector<vector<int>>ans;
-    sort(a.begin(), a.end());
-    for(int i = 0; i < n; i++)
-    {
-        if(i > 0 && a[i] == a[i-1])
-            continue;
-        for(int j = i+1; j < n; j++)
-        {
-            if(j > i+1 && a[j] == a[j-1])
-                continue;
-            int k = j+1, l = n-1;
-            while(k < l)
-            {
-                ll sum = a[i];
-                sum += a[j];
-                sum += a[k];
-                sum += a[l];
-                if(sum == t)
-                {
-                    vector<int>temp = {a[i], a[j], a[k], a[l]};
-                    ans.push_back(temp);
-                    k++;
-                    l--;
-                    while( k < l && a[k] == a[k-1])
-                        k++;
-                    while( k < l && a[l] == a[l+1])
-                        l--;
-                }
-                else if(sum < t)
-                    k++;
-                else
-                    l--;
-            }
-        }
-    }
-    print_2d_array(ans);
-    if(!ans.empty() && ans[0].size() == 4)
-        cout << "YES\n";
-    else
-        cout << "NO\n";
+    cout << merge_sort(a, 0, n-1) << endl;
 }
 
 int main()
